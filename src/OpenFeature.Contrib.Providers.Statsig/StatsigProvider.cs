@@ -55,18 +55,12 @@ namespace OpenFeature.Contrib.Providers.Statsig
         /// <inheritdoc/>
         public override Task<ResolutionDetails<bool>> ResolveBooleanValue(string flagKey, bool defaultValue, EvaluationContext context = null)
         {
+            //TODO: defaultvalue = true not yet supported due to https://github.com/statsig-io/dotnet-sdk/issues/33
+            if (defaultValue == true)
+                throw new NotSupportedException("defaultvalue = true not yet supported");
             if (GetStatus() != ProviderStatus.Ready)
                 return Task.FromResult(new ResolutionDetails<bool>(flagKey, defaultValue, ErrorType.ProviderNotReady));
             var result = StatsigServer.CheckGateSync(context.AsStatsigUser(), flagKey);
-            //Workaround for fallback to true default value
-            if (result == false && defaultValue == true)
-            {
-                if (!StatsigServer.GetFeatureGateList().Exists(x => x == flagKey.ToLowerInvariant()))
-                {
-                    return Task.FromResult(new ResolutionDetails<bool>(flagKey, true));
-                }
-            }
-
             return Task.FromResult(new ResolutionDetails<bool>(flagKey, result));
         }
 
