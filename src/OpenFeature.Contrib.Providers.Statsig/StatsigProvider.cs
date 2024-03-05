@@ -31,6 +31,7 @@ namespace OpenFeature.Contrib.Providers.Statsig
         /// <summary>
         /// 
         /// </summary>
+        /// <param name="sdkKey"></param>
         /// <param name="options"></param>
         public StatsigProvider(string sdkKey, StatsigProviderOptions options)
         {
@@ -57,32 +58,37 @@ namespace OpenFeature.Contrib.Providers.Statsig
         {
             //TODO: defaultvalue = true not yet supported due to https://github.com/statsig-io/dotnet-sdk/issues/33
             if (defaultValue == true)
-                throw new NotSupportedException("defaultvalue = true not yet supported");
+                throw new StatsigProviderException("defaultvalue = true not supported(https://github.com/statsig-io/dotnet-sdk/issues/33)");
             if (GetStatus() != ProviderStatus.Ready)
                 return Task.FromResult(new ResolutionDetails<bool>(flagKey, defaultValue, ErrorType.ProviderNotReady));
             var result = StatsigServer.CheckGateSync(context.AsStatsigUser(), flagKey);
             return Task.FromResult(new ResolutionDetails<bool>(flagKey, result));
         }
 
+        /// <inheritdoc/>
         public override Task<ResolutionDetails<double>> ResolveDoubleValue(string flagKey, double defaultValue, EvaluationContext context = null)
         {
             throw new NotImplementedException();
         }
 
+        /// <inheritdoc/>
         public override Task<ResolutionDetails<int>> ResolveIntegerValue(string flagKey, int defaultValue, EvaluationContext context = null)
         {
             throw new NotImplementedException();
         }
 
+        /// <inheritdoc/>
         public override Task<ResolutionDetails<string>> ResolveStringValue(string flagKey, string defaultValue, EvaluationContext context = null)
         {
             throw new NotImplementedException();
         }
 
+        /// <inheritdoc/>
         public override Task<ResolutionDetails<Value>> ResolveStructureValue(string flagKey, Value defaultValue, EvaluationContext context = null)
         {
             throw new NotImplementedException();
         }
+
         /// <inheritdoc/>
         public override ProviderStatus GetStatus()
         {
@@ -110,22 +116,6 @@ namespace OpenFeature.Contrib.Providers.Statsig
                     semaphore.Release();
                 }
             }
-
-            //// We start listening for status changes and then we check the current status change. If we do not check
-            //// then we could have missed a status change. If we check before registering a listener, then we could
-            //// miss a change between checking and listening. Doing it this way we can get duplicates, but we filter
-            //// when the status does not actually change, so we won't emit duplicate events.
-            //if (_client.Initialized)
-            //{
-            //    _statusProvider.SetStatus(ProviderStatus.Ready);
-            //    _initCompletion.TrySetResult(true);
-            //}
-
-            //if (_client.DataSourceStatusProvider.Status.State == DataSourceState.Off)
-            //{
-            //    _statusProvider.SetStatus(ProviderStatus.Error, ProviderShutdownMessage);
-            //    _initCompletion.TrySetException(new LaunchDarklyProviderInitException(ProviderShutdownMessage));
-            //}
         }
 
         /// <inheritdoc />

@@ -3,7 +3,7 @@ using System;
 namespace OpenFeature.Contrib.Providers.Statsig
 {
     /// <summary>
-    ///     Exception throw when the options of the provider are invalid.
+    ///   Generic Statsig provider exception
     /// </summary>
     public class StatsigProviderException : Exception
     {
